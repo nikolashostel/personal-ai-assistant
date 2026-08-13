@@ -4,6 +4,9 @@ from app.pipelines.rag_pipeline import RagPipeline
 from app.rag.prompt_builder import PromptBuilder
 from app.rag.retriever import Retriever
 from app.vectorstore.vector_store import VectorStore
+from app.config.settings import settings
+from app.llm.gigachat_llm import GigaChatLLM
+from app.llm.qwen_llm import QwenLLM
 
 
 def main():
@@ -24,7 +27,10 @@ def main():
     system_prompt=system_prompt
     )
 
-    llm = GigaChatLLM()
+    if settings.LLM_PROVIDER == "qwen":
+        llm = QwenLLM()
+    else:
+        llm = GigaChatLLM()
 
     # Собираем Pipeline
 
