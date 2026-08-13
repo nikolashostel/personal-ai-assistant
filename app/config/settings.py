@@ -6,6 +6,10 @@ class Settings(BaseSettings):
     GEMINI_API_KEY: str | None = None
     DEEPSEEK_API_KEY: str | None = None
     GIGACHAT_CREDENTIALS: str | None = None
+    QWEN_BASE_URL: str = "http://127.0.0.1:8080/v1"
+    QWEN_MODEL: str = "Qwen3-1.7B-Q4_K_M"
+    QWEN_TEMPERATURE: float = 0.2
+    QWEN_MAX_TOKENS: int = 500
 
     EMBEDDING_MODEL: str = "BAAI/bge-m3"
 
