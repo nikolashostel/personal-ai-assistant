@@ -6,6 +6,7 @@ class Settings(BaseSettings):
     GEMINI_API_KEY: str | None = None
     DEEPSEEK_API_KEY: str | None = None
     GIGACHAT_CREDENTIALS: str | None = None
+    TELEGRAM_BOT_TOKEN: str | None = None
     
     EMBEDDING_MODEL: str = "BAAI/bge-m3"
     VECTOR_DB_PATH: str = "data/vector_db"
