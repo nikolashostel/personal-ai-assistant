@@ -1,4 +1,4 @@
-from app.llm.base_llm import BaseLLM
+from app.llm.base_llm import LLMProvider
 from app.rag.prompt_builder import PromptBuilder
 from app.rag.retriever import Retriever
 
@@ -9,7 +9,7 @@ class RagPipeline:
         self,
         retriever: Retriever,
         prompt_builder: PromptBuilder,
-        llm: BaseLLM
+        llm: LLMProvider
     ):
 
         self.retriever = retriever
