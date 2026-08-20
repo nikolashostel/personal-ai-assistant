@@ -10,6 +10,8 @@ class Settings(BaseSettings):
     GIGACHAT_CREDENTIALS: str | None = None
     TELEGRAM_BOT_TOKEN: str | None = None
 
+    ASSISTANT_API_URL: str = "http://127.0.0.1:8000"
+
     EMBEDDING_MODEL: str = "BAAI/bge-m3"
     VECTOR_DB_PATH: str = "data/vector_db"
 
