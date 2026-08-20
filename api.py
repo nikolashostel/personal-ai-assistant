@@ -4,8 +4,7 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 
 from app.config.settings import settings
-from app.llm.gigachat_llm import GigaChatLLM
-from app.llm.qwen_llm import QwenLLM
+from app.llm.llm_factory import create_llm_provider
 from app.pipelines.rag_pipeline import RagPipeline
 from app.rag.prompt_builder import PromptBuilder
 from app.rag.retriever import Retriever
@@ -13,7 +12,7 @@ from app.vectorstore.vector_store import VectorStore
 
 
 app = FastAPI(
-    title="Enterprise AI Knowledge Assistant API",
+    title="Personal AI Assistant API",
     version="1.0.0"
 )
 
@@ -29,10 +28,7 @@ prompt_path = Path("prompts/rag_system_prompt.txt")
 system_prompt = prompt_path.read_text(encoding="utf-8")
 prompt_builder = PromptBuilder(system_prompt=system_prompt)
 
-if settings.LLM_PROVIDER == "qwen":
-    llm = QwenLLM()
-else:
-    llm = GigaChatLLM()
+llm = create_llm_provider()
 
 pipeline = RagPipeline(
     retriever=retriever,
