@@ -11,15 +11,13 @@ class RagPipeline:
         retriever: Retriever,
         prompt_builder: PromptBuilder,
         llm: LLMProvider,
-        memory: ConversationMemory,
     ):
         self.retriever = retriever
         self.prompt_builder = prompt_builder
         self.llm = llm
-        self.memory = memory
 
-    def ask(self, question: str) -> str:
-        conversation_history = self.memory.format_for_prompt()
+    def ask(self, question: str, memory: ConversationMemory) -> str:
+        conversation_history = memory.format_for_prompt()
 
         print("Поиск релевантных документов...")
         documents = self.retriever.retrieve(question)
@@ -37,8 +35,8 @@ class RagPipeline:
         answer = self.llm.generate(prompt)
         print("✓ Ответ получен")
 
-        self.memory.add_user_message(question)
-        self.memory.add_assistant_message(answer)
+        memory.add_user_message(question)
+        memory.add_assistant_message(answer)
 
         sources = self._build_sources(documents)
         return f"{answer}\n\nИсточники:\n{sources}"
