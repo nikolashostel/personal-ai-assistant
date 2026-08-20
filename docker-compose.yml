@@ -1,13 +1,33 @@
 services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: personal_ai
+      POSTGRES_USER: assistant
+      POSTGRES_PASSWORD: assistant
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U assistant -d personal_ai"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   api:
     build: .
     command: uvicorn api:app --host 0.0.0.0 --port 8000
+    environment:
+      DATABASE_URL: postgresql+psycopg2://assistant:assistant@db:5432/personal_ai
     env_file:
       - .env
     ports:
       - "8000:8000"
     volumes:
       - chroma_data:/app/data/vector_db
+    depends_on:
+      db:
+        condition: service_healthy
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
@@ -30,3 +50,4 @@ services:
 
 volumes:
   chroma_data:
+  postgres_data:
