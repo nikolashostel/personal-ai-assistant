@@ -1,10 +1,10 @@
 from openai import OpenAI
 
 from app.config.settings import settings
-from app.llm.base_llm import BaseLLM
+from app.llm.base_llm import LLMProvider
 
 
-class QwenLLM(BaseLLM):
+class QwenProvider(LLMProvider):
     def __init__(self) -> None:
         self.client = OpenAI(
             base_url=settings.QWEN_BASE_URL,
