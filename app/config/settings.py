@@ -1,5 +1,7 @@
-from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing import Literal
+
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
 
 class Settings(BaseSettings):
 
@@ -7,7 +9,7 @@ class Settings(BaseSettings):
     DEEPSEEK_API_KEY: str | None = None
     GIGACHAT_CREDENTIALS: str | None = None
     TELEGRAM_BOT_TOKEN: str | None = None
-    
+
     EMBEDDING_MODEL: str = "BAAI/bge-m3"
     VECTOR_DB_PATH: str = "data/vector_db"
 
@@ -17,7 +19,7 @@ class Settings(BaseSettings):
     QWEN_MODEL: str = "Qwen3-1.7B-Q4_K_M"
     QWEN_TEMPERATURE: float = 0.2
     QWEN_MAX_TOKENS: int = 500
-      
+
     CHUNK_SIZE: int = 700
     CHUNK_OVERLAP: int = 150
 
