@@ -1,9 +1,10 @@
 from abc import ABC, abstractmethod
 
 
-class BaseLLM(ABC):
+class LLMProvider(ABC):
+    """Interface for language model providers."""
 
     @abstractmethod
     def generate(self, prompt: str) -> str:
-        """Генерирует ответ по переданному промпту."""
+        """Generate a response for the given prompt."""
         pass
