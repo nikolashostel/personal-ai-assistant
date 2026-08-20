@@ -24,14 +24,21 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 async def ask(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     question = (update.message.text or "").strip()
 
-    if not question:
+    if not question or not update.effective_user or not update.effective_chat:
         return
+
+    user_id = str(update.effective_user.id)
+    conversation_id = str(update.effective_chat.id)
 
     try:
         async with httpx.AsyncClient(timeout=60.0) as client:
             response = await client.post(
                 f"{settings.ASSISTANT_API_URL.rstrip('/')}/ask",
-                json={"question": question},
+                json={
+                    "user_id": user_id,
+                    "conversation_id": conversation_id,
+                    "question": question,
+                },
             )
             response.raise_for_status()
             data = response.json()
