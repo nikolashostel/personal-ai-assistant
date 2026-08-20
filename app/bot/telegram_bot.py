@@ -13,13 +13,11 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-API_URL = "http://127.0.0.1:8000/ask"
-
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_text(
-        "Привет! Я Enterprise AI Knowledge Assistant.\n\n"
-        "Задай вопрос по корпоративной базе знаний."
+        "Привет! Я Personal AI Assistant.\n\n"
+        "Задай мне вопрос."
     )
 
 
@@ -31,7 +29,10 @@ async def ask(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
     try:
         async with httpx.AsyncClient(timeout=60.0) as client:
-            response = await client.post(API_URL, json={"question": question})
+            response = await client.post(
+                f"{settings.ASSISTANT_API_URL.rstrip('/')}/ask",
+                json={"question": question},
+            )
             response.raise_for_status()
             data = response.json()
 
