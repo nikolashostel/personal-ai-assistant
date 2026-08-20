@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     TELEGRAM_BOT_TOKEN: str | None = None
 
     ASSISTANT_API_URL: str = "http://127.0.0.1:8000"
+    DATABASE_URL: str = "postgresql+psycopg2://assistant:assistant@localhost:5432/personal_ai"
 
     EMBEDDING_MODEL: str = "BAAI/bge-m3"
     VECTOR_DB_PATH: str = "data/vector_db"
@@ -24,7 +25,6 @@ class Settings(BaseSettings):
 
     CHUNK_SIZE: int = 700
     CHUNK_OVERLAP: int = 150
-
     TOP_K: int = 3
 
     model_config = SettingsConfigDict(
