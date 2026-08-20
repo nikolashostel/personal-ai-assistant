@@ -5,6 +5,7 @@ from pydantic import BaseModel
 
 from app.config.settings import settings
 from app.llm.llm_factory import create_llm_provider
+from app.memory.conversation_memory import ConversationMemory
 from app.pipelines.rag_pipeline import RagPipeline
 from app.rag.prompt_builder import PromptBuilder
 from app.rag.retriever import Retriever
@@ -23,6 +24,7 @@ class AskRequest(BaseModel):
 
 vector_store = VectorStore()
 retriever = Retriever(vector_store)
+memory = ConversationMemory(max_messages=10)
 
 prompt_path = Path("prompts/rag_system_prompt.txt")
 system_prompt = prompt_path.read_text(encoding="utf-8")
@@ -33,7 +35,8 @@ llm = create_llm_provider()
 pipeline = RagPipeline(
     retriever=retriever,
     prompt_builder=prompt_builder,
-    llm=llm
+    llm=llm,
+    memory=memory,
 )
 
 
