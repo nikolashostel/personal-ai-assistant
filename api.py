@@ -1,23 +1,16 @@
-from pathlib import Path
-
 from fastapi import FastAPI
 from pydantic import BaseModel, Field
 
-from app.config.settings import settings
 from app.db.database import SessionLocal
 from app.db.init_db import init_db
 from app.db.repositories import ConversationRepository
 from app.llm.llm_factory import create_llm_provider
 from app.memory.conversation_memory import ConversationMemory
-from app.pipelines.rag_pipeline import RagPipeline
-from app.rag.prompt_builder import PromptBuilder
-from app.rag.retriever import Retriever
-from app.vectorstore.vector_store import VectorStore
 
 
 app = FastAPI(
     title="Personal AI Assistant API",
-    version="1.0.0"
+    version="1.0.0-cloud-mvp",
 )
 
 
@@ -27,20 +20,7 @@ class AskRequest(BaseModel):
     question: str = Field(min_length=1)
 
 
-vector_store = VectorStore()
-retriever = Retriever(vector_store)
-
-prompt_path = Path("prompts/rag_system_prompt.txt")
-system_prompt = prompt_path.read_text(encoding="utf-8")
-prompt_builder = PromptBuilder(system_prompt=system_prompt)
-
 llm = create_llm_provider()
-
-pipeline = RagPipeline(
-    retriever=retriever,
-    prompt_builder=prompt_builder,
-    llm=llm,
-)
 
 
 @app.on_event("startup")
@@ -72,10 +52,23 @@ def ask(request: AskRequest):
             elif message.role == "assistant":
                 memory.add_assistant_message(message.content)
 
-        answer = pipeline.ask(
-            question=request.question,
-            memory=memory,
-        )
+        prompt = f"""
+Ты — Personal AI Assistant.
+
+Отвечай на русском языке, если пользователь не попросил другой язык.
+Отвечай понятно, кратко и по существу.
+Если не знаешь ответа, честно скажи об этом и не выдумывай факты.
+
+История разговора:
+{memory.format_for_prompt()}
+
+Текущий вопрос:
+{request.question}
+
+Ответ:
+"""
+
+        answer = llm.generate(prompt)
 
         repository.add_message(
             conversation=conversation,
