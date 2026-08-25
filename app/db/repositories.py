@@ -1,7 +1,13 @@
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.db.models import Conversation, Message, User
+from app.db.models import (
+    Conversation,
+    Message,
+    RunningWorkout,
+    RunningWorkoutLap,
+    User,
+)
 
 
 class ConversationRepository:
@@ -68,3 +74,54 @@ class ConversationRepository:
         )
         self.db.add(message)
         return message
+
+
+class RunningWorkoutRepository:
+    def __init__(self, db: Session):
+        self.db = db
+
+    def add_workout(
+        self,
+        user: User,
+        workout_data: dict,
+    ) -> RunningWorkout:
+        workout = RunningWorkout(
+            user_id=user.id,
+            started_at=workout_data.get("started_at"),
+            distance_km=workout_data.get("distance_km"),
+            duration_sec=workout_data.get("duration_sec"),
+            avg_pace_sec_km=workout_data.get("avg_pace_sec_km"),
+            avg_heart_rate=workout_data.get("avg_heart_rate"),
+            max_heart_rate=workout_data.get("max_heart_rate"),
+            calories=workout_data.get("calories"),
+            elevation_gain_m=workout_data.get("elevation_gain_m"),
+            avg_cadence=workout_data.get("avg_cadence"),
+            training_type=workout_data.get("training_type"),
+            source=workout_data.get("source", "telegram"),
+            source_image=workout_data.get("source_image"),
+            rpe=workout_data.get("rpe"),
+            feeling=workout_data.get("feeling"),
+            notes=workout_data.get("notes"),
+        )
+
+        self.db.add(workout)
+        self.db.flush()
+
+        for lap_data in workout_data.get("laps", []):
+            lap = RunningWorkoutLap(
+                workout_id=workout.id,
+                lap_number=lap_data["lap_number"],
+                lap_type=lap_data.get("lap_type"),
+                distance_km=lap_data.get("distance_km"),
+                duration_sec=lap_data.get("duration_sec"),
+                pace_sec_km=lap_data.get("pace_sec_km"),
+                avg_heart_rate=lap_data.get("avg_heart_rate"),
+                max_heart_rate=lap_data.get("max_heart_rate"),
+                cadence=lap_data.get("cadence"),
+                elevation_gain_m=lap_data.get("elevation_gain_m"),
+            )
+            self.db.add(lap)
+
+        self.db.flush()
+
+        return workout
