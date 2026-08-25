@@ -18,7 +18,6 @@ class RunningWorkoutLapData(BaseModel):
     avg_heart_rate: int | None = Field(default=None, ge=0)
     max_heart_rate: int | None = Field(default=None, ge=0)
     cadence: int | None = Field(default=None, ge=0)
-
     elevation_gain_m: int | None = Field(default=None, ge=0)
 
 
@@ -30,20 +29,19 @@ class RunningWorkoutData(BaseModel):
     distance_km: Decimal | None = Field(default=None, ge=0)
     duration_sec: int | None = Field(default=None, ge=0)
 
+    # Stored for convenient querying; distance + duration are the source values.
     avg_pace_sec_km: int | None = Field(default=None, ge=0)
     avg_heart_rate: int | None = Field(default=None, ge=0)
     max_heart_rate: int | None = Field(default=None, ge=0)
-
-    calories: int | None = Field(default=None, ge=0)
-    elevation_gain_m: int | None = Field(default=None, ge=0)
     avg_cadence: int | None = Field(default=None, ge=0)
+    elevation_gain_m: int | None = Field(default=None, ge=0)
 
     training_type: Literal["regular", "interval"]
-    source: str = "telegram"
-    source_image: str | None = None
 
     rpe: int | None = Field(default=None, ge=1, le=10)
-    feeling: str | None = None
     notes: str | None = None
+
+    source: str = "telegram"
+    source_image: str | None = None
 
     laps: list[RunningWorkoutLapData] = Field(default_factory=list)
