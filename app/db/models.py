@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import DateTime, ForeignKey, String, Text, func
+from sqlalchemy import DateTime, ForeignKey, Numeric, String, Text, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.database import Base
@@ -57,42 +57,31 @@ class RunningWorkout(Base):
     __tablename__ = "running_workouts"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    user_id: Mapped[int] = mapped_column(
-        ForeignKey("users.id"), index=True
-    )
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
 
     started_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True), nullable=True
     )
-
-    distance_km: Mapped[float | None] = mapped_column(nullable=True)
+    distance_km: Mapped[float | None] = mapped_column(
+        Numeric(6, 2), nullable=True
+    )
     duration_sec: Mapped[int | None] = mapped_column(nullable=True)
 
+    # Stored for convenient querying; distance_km + duration_sec remain the source data.
     avg_pace_sec_km: Mapped[int | None] = mapped_column(nullable=True)
     avg_heart_rate: Mapped[int | None] = mapped_column(nullable=True)
     max_heart_rate: Mapped[int | None] = mapped_column(nullable=True)
-
-    calories: Mapped[int | None] = mapped_column(nullable=True)
-    elevation_gain_m: Mapped[int | None] = mapped_column(nullable=True)
     avg_cadence: Mapped[int | None] = mapped_column(nullable=True)
+    elevation_gain_m: Mapped[int | None] = mapped_column(nullable=True)
 
-    training_type: Mapped[str | None] = mapped_column(
-        String(32), nullable=True
-    )
-
-    source: Mapped[str] = mapped_column(
-        String(32), default="telegram"
-    )
-    source_image: Mapped[str | None] = mapped_column(
-        String(512), nullable=True
-    )
+    training_type: Mapped[str | None] = mapped_column(String(32), nullable=True)
 
     rpe: Mapped[int | None] = mapped_column(nullable=True)
-    feeling: Mapped[str | None] = mapped_column(
-        String(32), nullable=True
-    )
-    notes: Mapped[str | None] = mapped_column(
-        Text, nullable=True
+    notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+    source: Mapped[str] = mapped_column(String(32), default="telegram")
+    source_image: Mapped[str | None] = mapped_column(
+        String(512), nullable=True
     )
 
     created_at: Mapped[datetime] = mapped_column(
@@ -110,16 +99,13 @@ class RunningWorkoutLap(Base):
     )
 
     lap_number: Mapped[int] = mapped_column()
-    lap_type: Mapped[str | None] = mapped_column(
-        String(32), nullable=True
+    lap_type: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    distance_km: Mapped[float | None] = mapped_column(
+        Numeric(6, 2), nullable=True
     )
-
-    distance_km: Mapped[float | None] = mapped_column(nullable=True)
     duration_sec: Mapped[int | None] = mapped_column(nullable=True)
     pace_sec_km: Mapped[int | None] = mapped_column(nullable=True)
-
     avg_heart_rate: Mapped[int | None] = mapped_column(nullable=True)
     max_heart_rate: Mapped[int | None] = mapped_column(nullable=True)
     cadence: Mapped[int | None] = mapped_column(nullable=True)
-
     elevation_gain_m: Mapped[int | None] = mapped_column(nullable=True)
