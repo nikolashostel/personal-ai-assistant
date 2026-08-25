@@ -42,7 +42,7 @@ def main() -> None:
         raise SystemExit(f"File not found: {path}")
 
     workouts: list[dict] = []
-    for event, elem in ET.iterparse(path, events=("end",)):
+    for _, elem in ET.iterparse(path, events=("end",)):
         if elem.tag == "Workout" and elem.attrib.get("workoutActivityType") == RUNNING:
             workout = dict(elem.attrib)
             if args.year is None or parse_date(workout["startDate"]).year == args.year:
@@ -70,20 +70,20 @@ def main() -> None:
     records_by_workout: dict[int, dict[str, list[dict]]] = defaultdict(
         lambda: defaultdict(list)
     )
-    for event, elem in ET.iterparse(path, events=("end",)):
+    for _, elem in ET.iterparse(path, events=("end",)):
         if elem.tag == "Record":
             attrs = elem.attrib
             record_type = attrs.get("type")
             if record_type in INTERESTING:
                 try:
-                    start = parse_date(attrs["startDate"])
-                    end = parse_date(attrs["endDate"])
+                    record_start = parse_date(attrs["startDate"])
+                    record_end = parse_date(attrs["endDate"])
                 except (KeyError, ValueError):
                     elem.clear()
                     continue
 
                 for index, workout_start, workout_end, _ in selected:
-                    if end >= workout_start and start <= workout_end:
+                    if record_end >= workout_start and record_start <= workout_end:
                         records_by_workout[index][record_type].append(attrs)
             elem.clear()
 
@@ -107,15 +107,29 @@ def main() -> None:
                     values.append(float(record["value"]))
                 except (KeyError, ValueError):
                     pass
+
             print(f"\n  {record_type}")
             print(f"    count: {len(records)}")
-            if values:
-                print(f"    unit: {records[0].get('unit')}")
-                print(f"    min: {min(values):g}")
-                print(f"    max: {max(values):g}")
-                print(f"    avg: {sum(values) / len(values):g}")
-            else:
+            if not values:
                 print("    numeric values: none")
+                continue
+
+            print(f"    unit: {records[0].get('unit')}")
+            print(f"    min: {min(values):g}")
+            print(f"    max: {max(values):g}")
+            print(f"    avg: {sum(values) / len(values):g}")
+
+            # These records are interval samples, so a plain average is often
+            # misleading. Show aggregates that are useful when deciding how
+            # to map Apple Health data into our normalized workout model.
+            if record_type == "HKQuantityTypeIdentifierDistanceWalkingRunning":
+                print(f"    SUM (candidate total distance): {sum(values):g} km")
+            elif record_type == "HKQuantityTypeIdentifierStepCount":
+                print(f"    SUM (candidate total steps): {sum(values):g}")
+            elif record_type == "HKQuantityTypeIdentifierElevationAscended":
+                print(f"    SUM (candidate total ascent): {sum(values):g} m")
+            elif record_type == "HKQuantityTypeIdentifierActiveEnergyBurned":
+                print(f"    SUM (candidate total active energy): {sum(values):g} Cal")
 
 
 if __name__ == "__main__":
