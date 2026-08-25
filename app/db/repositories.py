@@ -8,6 +8,7 @@ from app.db.models import (
     RunningWorkoutLap,
     User,
 )
+from app.running.schemas import RunningWorkoutData
 
 
 class ConversationRepository:
@@ -83,45 +84,37 @@ class RunningWorkoutRepository:
     def add_workout(
         self,
         user: User,
-        workout_data: dict,
+        workout_data: RunningWorkoutData,
     ) -> RunningWorkout:
         workout = RunningWorkout(
             user_id=user.id,
-            started_at=workout_data.get("started_at"),
-            distance_km=workout_data.get("distance_km"),
-            duration_sec=workout_data.get("duration_sec"),
-            avg_pace_sec_km=workout_data.get("avg_pace_sec_km"),
-            avg_heart_rate=workout_data.get("avg_heart_rate"),
-            max_heart_rate=workout_data.get("max_heart_rate"),
-            calories=workout_data.get("calories"),
-            elevation_gain_m=workout_data.get("elevation_gain_m"),
-            avg_cadence=workout_data.get("avg_cadence"),
-            training_type=workout_data.get("training_type"),
-            source=workout_data.get("source", "telegram"),
-            source_image=workout_data.get("source_image"),
-            rpe=workout_data.get("rpe"),
-            feeling=workout_data.get("feeling"),
-            notes=workout_data.get("notes"),
+            started_at=workout_data.started_at,
+            distance_km=workout_data.distance_km,
+            duration_sec=workout_data.duration_sec,
+            avg_pace_sec_km=workout_data.avg_pace_sec_km,
+            avg_heart_rate=workout_data.avg_heart_rate,
+            avg_cadence=workout_data.avg_cadence,
+            training_type=workout_data.training_type,
+            source=workout_data.source,
         )
 
         self.db.add(workout)
         self.db.flush()
 
-        for lap_data in workout_data.get("laps", []):
+        for lap_data in workout_data.laps:
             lap = RunningWorkoutLap(
                 workout_id=workout.id,
-                lap_number=lap_data["lap_number"],
-                lap_type=lap_data.get("lap_type"),
-                distance_km=lap_data.get("distance_km"),
-                duration_sec=lap_data.get("duration_sec"),
-                pace_sec_km=lap_data.get("pace_sec_km"),
-                avg_heart_rate=lap_data.get("avg_heart_rate"),
-                max_heart_rate=lap_data.get("max_heart_rate"),
-                cadence=lap_data.get("cadence"),
-                elevation_gain_m=lap_data.get("elevation_gain_m"),
+                lap_number=lap_data.lap_number,
+                lap_type=lap_data.lap_type,
+                distance_km=lap_data.distance_km,
+                duration_sec=lap_data.duration_sec,
+                pace_sec_km=lap_data.pace_sec_km,
+                avg_heart_rate=lap_data.avg_heart_rate,
+                max_heart_rate=lap_data.max_heart_rate,
+                cadence=lap_data.cadence,
+                elevation_gain_m=lap_data.elevation_gain_m,
             )
             self.db.add(lap)
 
         self.db.flush()
-
         return workout
