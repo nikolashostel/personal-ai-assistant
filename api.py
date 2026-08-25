@@ -3,9 +3,10 @@ from pydantic import BaseModel, Field
 
 from app.db.database import SessionLocal
 from app.db.init_db import init_db
-from app.db.repositories import ConversationRepository
+from app.db.repositories import ConversationRepository, RunningWorkoutRepository
 from app.llm.llm_factory import create_llm_provider
 from app.memory.conversation_memory import ConversationMemory
+from app.running.schemas import RunningWorkoutData
 
 
 app = FastAPI(
@@ -18,6 +19,11 @@ class AskRequest(BaseModel):
     user_id: str = Field(min_length=1)
     conversation_id: str = Field(min_length=1)
     question: str = Field(min_length=1)
+
+
+class RunningWorkoutRequest(BaseModel):
+    user_id: str = Field(min_length=1)
+    workout: RunningWorkoutData
 
 
 llm = create_llm_provider()
@@ -84,6 +90,34 @@ def ask(request: AskRequest):
         db.commit()
 
         return {"answer": answer}
+
+    except Exception:
+        db.rollback()
+        raise
+    finally:
+        db.close()
+
+
+@app.post("/running/workouts")
+def create_running_workout(request: RunningWorkoutRequest):
+    db = SessionLocal()
+
+    try:
+        repository = ConversationRepository(db)
+        user = repository.get_or_create_user(request.user_id)
+
+        workout_repository = RunningWorkoutRepository(db)
+        workout = workout_repository.add_workout(
+            user=user,
+            workout_data=request.workout,
+        )
+
+        db.commit()
+
+        return {
+            "id": workout.id,
+            "status": "saved",
+        }
 
     except Exception:
         db.rollback()
