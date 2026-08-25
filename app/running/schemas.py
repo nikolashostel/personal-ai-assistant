@@ -1,5 +1,6 @@
 from datetime import datetime
 from decimal import Decimal
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -37,7 +38,7 @@ class RunningWorkoutData(BaseModel):
     elevation_gain_m: int | None = Field(default=None, ge=0)
     avg_cadence: int | None = Field(default=None, ge=0)
 
-    training_type: str | None = None
+    training_type: Literal["regular", "interval"]
     source: str = "telegram"
     source_image: str | None = None
 
